@@ -5,6 +5,9 @@ Train + evaluate the CNN on an ImageFolder dataset.
 
 Example:
   python train.py --data_dir /path/to/PokemonData --max_epochs 20 --batch_size 32
+
+Example for quick test run from the root:
+  uv run python -m src.assignment.train --data_dir ./PokemonData --max_epochs 1 --batch_size 2
 """
 
 from __future__ import annotations
@@ -15,10 +18,12 @@ import numpy as np
 import torch
 import pytorch_lightning as pl
 import load_from_env
+from loguru import logger
+import logging_setup
 from sklearn.metrics import classification_report
 from pytorch_lightning.loggers import WandbLogger
-from data import ImageFolderDataModule
-from model import ConvolutionalNetwork
+from src.assignment.data import ImageFolderDataModule
+from src.assignment.model import ConvolutionalNetwork
 
 
 
@@ -40,33 +45,59 @@ def main() -> None:
     args = parse_args()
     pl.seed_everything(args.seed, workers=True)
 
+    #logging the configuration 
+    logger.info(f"Training pipeline started with config: {vars(args)}")
+
     # Initialize the WandbLogger
     wandb_logger = WandbLogger(
         project=os.getenv("WANDB_PROJECT"),
         entity=os.getenv("WANDB_ENTITY"),
-        config=vars(args) # This logs all your hyperparameters (lr, batch_size, etc.)
+        config=vars(args) # logs all your hyperparameters (lr, batch_size, etc.) to Wandb
     )
 
+    try:
+        #Data Setup
+        dm = ImageFolderDataModule(
+            data_dir=Path(args.data_dir),
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
+            img_size=args.img_size,
+            seed=args.seed,
+        )
+        dm.setup()
 
-    dm = ImageFolderDataModule(
-        data_dir=Path(args.data_dir),
-        batch_size=args.batch_size,
-        num_workers=args.num_workers,
-        img_size=args.img_size,
-        seed=args.seed,
-    )
-    dm.setup()
-    model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
+        #Data status check
+        logger.info(f"DataModule initialized. Found {dm.num_classes} classes.")
+        
+        model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
 
-    trainer = pl.Trainer(
-        max_epochs=args.max_epochs,
-        accelerator=args.accelerator,
-        devices=args.devices,
-        logger=wandb_logger, #tells Lightning to send metrics to W&B
-        log_every_n_steps=10,
-    )
-    trainer.fit(model, dm)
-    trainer.test(model, datamodule=dm)
+        #Hardware check
+        logger.info(f"Running on accelerator: {args.accelerator} with {args.devices} device(s)")
+
+        trainer = pl.Trainer(
+            max_epochs=args.max_epochs,
+            accelerator=args.accelerator,
+            devices=args.devices,
+            logger=wandb_logger, #tells Lightning to send metrics to W&B
+            log_every_n_steps=10,
+        )
+
+        #Starting the actual training loop
+        logger.warning(f"Starting model training for {args.max_epochs} epochs...")
+        trainer.fit(model, dm)
+
+
+        # Testing
+        logger.info("Starting testing phase...")
+        trainer.test(model, datamodule=dm)
+
+        #Success notification
+        logger.success("Training and testing completed successfully!")
+    
+    except Exception as e:
+        # Error handling (Saves the error traceback to your log file)
+        logger.exception(f"The program crashed due to an unexpected error: {e}")
 
 if __name__ == "__main__":
     main()
+
