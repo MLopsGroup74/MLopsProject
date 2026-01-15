@@ -10,6 +10,7 @@ COPY pyproject.toml pyproject.toml
 
 RUN uv sync --frozen --no-install-project
 
+COPY README.md README.md
 COPY src/ src/
 COPY PokemonData/ PokemonData/
 
