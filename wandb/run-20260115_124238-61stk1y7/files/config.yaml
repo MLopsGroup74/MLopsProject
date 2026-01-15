@@ -1,0 +1,88 @@
+_wandb:
+    value:
+        cli_version: 0.24.0
+        e:
+            ec9d18mq7u53v8ibkvgob48vbsbycndn:
+                args:
+                    - --data_dir
+                    - ./PokemonData
+                    - --max_epochs
+                    - "1"
+                    - --batch_size
+                    - "2"
+                codePath: src/assignment/train.py
+                codePathLocal: src/assignment/train.py
+                cpu_count: 8
+                cpu_count_logical: 16
+                disk:
+                    /:
+                        total: "1081101176832"
+                        used: "16621027328"
+                email: s224381@dtu.dk
+                executable: /mnt/c/Users/agnes/Desktop/ML_Ops/ml_ops_project/MLopsProject/.venv/bin/python3
+                git:
+                    commit: 959adb3ede203470af971cbf4f68cb749006ee7f
+                    remote: https://github.com/MLopsGroup74/MLopsProject
+                host: AgnesComputer
+                memory:
+                    total: "8183279616"
+                os: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+                program: /mnt/c/Users/agnes/Desktop/ML_Ops/ml_ops_project/MLopsProject/src/assignment/train.py
+                python: CPython 3.12.3
+                root: .
+                startedAt: "2026-01-15T11:42:38.261999Z"
+                writerId: ec9d18mq7u53v8ibkvgob48vbsbycndn
+        m:
+            - "1": trainer/global_step
+              "6":
+                - 3
+              "7": []
+            - "2": '*'
+              "5": 1
+              "6":
+                - 1
+              "7": []
+        python_version: 3.12.3
+        t:
+            "1":
+                - 1
+                - 5
+                - 9
+                - 41
+                - 53
+                - 103
+            "2":
+                - 1
+                - 5
+                - 9
+                - 41
+                - 53
+                - 103
+            "3":
+                - 7
+                - 16
+                - 66
+            "4": 3.12.3
+            "5": 0.24.0
+            "12": 0.24.0
+            "13": linux-x86_64
+accelerator:
+    value: auto
+batch_size:
+    value: 2
+data_dir:
+    value: ./PokemonData
+devices:
+    value: 1
+img_size:
+    value: 224
+lr:
+    value: 0.001
+max_epochs:
+    value: 1
+num_classes:
+    value: 150
+num_workers:
+    value: 0
+seed:
+    value: 42

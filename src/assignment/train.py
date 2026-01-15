@@ -8,16 +8,18 @@ Example:
 """
 
 from __future__ import annotations
-
+import os
 import argparse
 from pathlib import Path
 import numpy as np
 import torch
 import pytorch_lightning as pl
+import load_from_env
 from sklearn.metrics import classification_report
-
+from pytorch_lightning.loggers import WandbLogger
 from data import ImageFolderDataModule
 from model import ConvolutionalNetwork
+
 
 
 def parse_args() -> argparse.Namespace:
@@ -38,6 +40,14 @@ def main() -> None:
     args = parse_args()
     pl.seed_everything(args.seed, workers=True)
 
+    # Initialize the WandbLogger
+    wandb_logger = WandbLogger(
+        project=os.getenv("WANDB_PROJECT"),
+        entity=os.getenv("WANDB_ENTITY"),
+        config=vars(args) # This logs all your hyperparameters (lr, batch_size, etc.)
+    )
+
+
     dm = ImageFolderDataModule(
         data_dir=Path(args.data_dir),
         batch_size=args.batch_size,
@@ -52,34 +62,11 @@ def main() -> None:
         max_epochs=args.max_epochs,
         accelerator=args.accelerator,
         devices=args.devices,
+        logger=wandb_logger, #tells Lightning to send metrics to W&B
         log_every_n_steps=10,
     )
     trainer.fit(model, dm)
     trainer.test(model, datamodule=dm)
-
-    # Classification report on the test set
-    model.eval()
-    device = model.device
-    y_true, y_pred = [], []
-    with torch.no_grad():
-        for xb, yb in dm.test_dataloader():
-            xb = xb.to(device)
-            logits = model(xb)
-            preds = logits.argmax(dim=1).cpu().tolist()
-            y_pred.extend(preds)
-            y_true.extend(yb.cpu().tolist())
-
-    print("\nClassification report (test):")
-    labels = np.arange(len(dm.class_names))  # all 150 classes
-    print(classification_report(
-        y_true,
-        y_pred,
-        labels=labels,
-        target_names=list(dm.class_names),
-        digits=4,
-        zero_division=0,
-    ))
-
 
 if __name__ == "__main__":
     main()

@@ -69,7 +69,7 @@ def main() -> None:
             y_true.extend(yb.cpu().tolist())
 
     # --- Classification report ---
-    print("\n📊 Classification report (test):")
+    print(" Classification report (test):")
     labels = np.arange(len(dm.class_names))
     print(
         classification_report(
