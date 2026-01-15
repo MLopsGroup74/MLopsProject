@@ -62,3 +62,9 @@ line-length = 120
 
 [tool.coverage.run]
 omit = ["tests/*"]
+
+
+[tool.pytest.ini_options]
+markers = [
+  "fast: quick running tests"
+]

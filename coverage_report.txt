@@ -1,0 +1,12 @@
+Name                              Stmts   Miss  Cover   Missing
+---------------------------------------------------------------
+src/assignment/__init__.py            0      0   100%
+src/assignment/api.py                 0      0   100%
+src/assignment/data.py               60      3    95%   45, 89-90
+src/assignment/evaluate.py           43     43     0%   10-87
+src/assignment/load_from_env.py       5      0   100%
+src/assignment/model.py              44      0   100%
+src/assignment/train.py              36      1    97%   72
+src/assignment/visualize.py           0      0   100%
+---------------------------------------------------------------
+TOTAL                               188     47    75%
