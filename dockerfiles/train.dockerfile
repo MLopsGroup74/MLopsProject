@@ -1,12 +1,20 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS base
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+
+RUN apt update && \
+    apt install --no-install-recommends -y build-essential gcc && \
+    apt clean && rm -rf /var/lib/apt/lists/*
+
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 
 RUN uv sync --frozen --no-install-project
 
-COPY src src/
+COPY README.md README.md
+COPY src/ src/
+COPY PokemonData/ PokemonData/
 
-RUN uv sync --frozen
+WORKDIR /
+RUN uv sync --locked --no-cache
 
 ENTRYPOINT ["uv", "run", "src/assignment/train.py"]
