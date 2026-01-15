@@ -1,0 +1,36 @@
+{
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "CPython 3.12.3",
+  "startedAt": "2026-01-15T11:42:38.261999Z",
+  "args": [
+    "--data_dir",
+    "./PokemonData",
+    "--max_epochs",
+    "1",
+    "--batch_size",
+    "2"
+  ],
+  "program": "/mnt/c/Users/agnes/Desktop/ML_Ops/ml_ops_project/MLopsProject/src/assignment/train.py",
+  "codePath": "src/assignment/train.py",
+  "codePathLocal": "src/assignment/train.py",
+  "git": {
+    "remote": "https://github.com/MLopsGroup74/MLopsProject",
+    "commit": "959adb3ede203470af971cbf4f68cb749006ee7f"
+  },
+  "email": "s224381@dtu.dk",
+  "root": ".",
+  "host": "AgnesComputer",
+  "executable": "/mnt/c/Users/agnes/Desktop/ML_Ops/ml_ops_project/MLopsProject/.venv/bin/python3",
+  "cpu_count": 8,
+  "cpu_count_logical": 16,
+  "disk": {
+    "/": {
+      "total": "1081101176832",
+      "used": "16621027328"
+    }
+  },
+  "memory": {
+    "total": "8183279616"
+  },
+  "writerId": "ec9d18mq7u53v8ibkvgob48vbsbycndn"
+}
