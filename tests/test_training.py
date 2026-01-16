@@ -11,7 +11,7 @@ from pathlib import Path
 from tests import _PATH_DATA 
 
 def _make_tiny_imagefolder(root: Path):
-    for cls in ["class_a", "class_b"]:
+    for cls in ["Abra", "Bulbasaur"]:
         d = root / cls
         d.mkdir(parents=True, exist_ok=True)
         # 2 tiny images per class
@@ -34,7 +34,7 @@ def test_train_minimal(monkeypatch):
 
 
     args = [
-        "train.py",                 # ✅ argv[0] placeholder
+        "train.py",                 
         "--data_dir", str(data_dir),
         "--batch_size", "2",
         "--num_workers", "0",
