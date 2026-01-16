@@ -57,8 +57,6 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-[tool.ruff]
-line-length = 120
 
 [tool.coverage.run]
 omit = ["tests/*"]
@@ -68,3 +66,7 @@ omit = ["tests/*"]
 markers = [
   "fast: quick running tests"
 ]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F"]
