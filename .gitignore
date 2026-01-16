@@ -10,6 +10,11 @@ __pycache__/
 PokemonData/
 .DS_Store
 
+mlops_assignment/4waua6x7/checkpoints/
+models/
+*.ckpt
+
+
 # Distribution / packaging
 .Python
 build/
