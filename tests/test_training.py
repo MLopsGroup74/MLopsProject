@@ -1,10 +1,8 @@
-import os
-from pathlib import Path
 import sys
 from unittest.mock import patch
 
 import pytest
-import torch
+
 from PIL import Image
 
 from src.assignment import train
