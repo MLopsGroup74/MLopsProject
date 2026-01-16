@@ -6,22 +6,19 @@ Train + evaluate the CNN on an ImageFolder dataset.
 Example:
   python train.py --data_dir /path/to/PokemonData --max_epochs 20 --batch_size 32
 
-Example for quick test run from the root:
-  uv run python -m src.assignment.train --data_dir ./PokemonData --max_epochs 1 --batch_size 2
+Example for running from current best model from the root:
+    uv run python -m src.assignment.train   --data_dir ./PokemonData   --max_epochs 20   --batch_size 32   --lr 1e-4   --ckpt_path models/model-epoch=17-val_acc=0.38.ckpt
 """
 
 from __future__ import annotations
 import os
 import argparse
 from pathlib import Path
-import numpy as np
-import torch
 import pytorch_lightning as pl
-import load_from_env
 from loguru import logger
 import logging_setup
-from sklearn.metrics import classification_report
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 from src.assignment.data import ImageFolderDataModule
 from src.assignment.model import ConvolutionalNetwork
 
@@ -38,6 +35,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--accelerator", type=str, default="auto", help="auto/cpu/gpu/mps")
     p.add_argument("--devices", type=int, default=1)
+    p.add_argument("--ckpt_path", type=str, default=None, help="Path to checkpoint to resume training.")
     return p.parse_args()
 
 
@@ -48,9 +46,9 @@ def main() -> None:
     #logging the configuration 
     logger.info(f"Training pipeline started with config: {vars(args)}")
 
-    # Initialize the WandbLogger
+    # Initialize the WandbLogger #os.getenv("WANDB_PROJECT"), din't work
     wandb_logger = WandbLogger(
-        project=os.getenv("WANDB_PROJECT"),
+        project="mlops_assignment", 
         entity=os.getenv("WANDB_ENTITY"),
         config=vars(args) # logs all your hyperparameters (lr, batch_size, etc.) to Wandb
     )
@@ -68,6 +66,15 @@ def main() -> None:
 
         #Data status check
         logger.info(f"DataModule initialized. Found {dm.num_classes} classes.")
+
+        #Define the checkpoint callback to save the best model (highest validation accuracy)
+        checkpoint_callback = ModelCheckpoint(
+            dirpath="models/",              
+            filename="model-{epoch:02d}-{val_acc:.2f}",
+            save_top_k=1,                   
+            monitor="val_acc",              
+            mode="max",
+        )
         
         model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
 
@@ -79,13 +86,14 @@ def main() -> None:
             accelerator=args.accelerator,
             devices=args.devices,
             logger=wandb_logger, #tells Lightning to send metrics to W&B
-            log_every_n_steps=10,
+            callbacks=[checkpoint_callback],
+            log_every_n_steps=1,
         )
 
         #Starting the actual training loop
         logger.warning(f"Starting model training for {args.max_epochs} epochs...")
-        trainer.fit(model, dm)
-
+        trainer.fit(model, dm, ckpt_path=args.ckpt_path)
+        
 
         # Testing
         logger.info("Starting testing phase...")
