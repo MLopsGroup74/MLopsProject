@@ -11,6 +11,7 @@ Example for running from current best model from the root:
 
 Example for GCS bucket:
     uv run python3 -m src.assignment.train.py --data_dir gs://mlopsproject-data/PokemonData --max_epochs 1 --batch_size 2
+    test
 
 """
 
