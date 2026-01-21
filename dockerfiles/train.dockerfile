@@ -1,19 +1,30 @@
+# Use the official uv image
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-RUN apt update && \
-    apt install --no-install-recommends -y build-essential gcc && \
-    apt clean && rm -rf /var/lib/apt/lists/*
-
-# Copy pyproject + lock
-COPY pyproject.toml uv.lock /app/
+# 1. Set the working directory FIRST
 WORKDIR /app
 
-# Install all dependencies (including PyTorch & PyTorch Lightning)
-RUN uv sync --locked --no-cache
+# 2. Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy project code
-COPY src/ src/
-COPY README.md README.md
+# 3. Copy only dependency files first (for caching)
+COPY pyproject.toml uv.lock ./
 
-# Set entrypoint for training
+# 4. Install dependencies
+# --frozen ensures we use the lockfile exactly
+# --no-install-project skips installing your local 'src' as a package for now
+RUN uv sync --frozen --no-install-project --no-dev
+
+# 5. Copy the rest of the application
+COPY . .
+
+# 6. Final sync to install the project itself
+RUN uv sync --frozen --no-dev
+
+# 7. Use the virtual environment's path automatically
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Set entrypoint
 ENTRYPOINT ["uv", "run", "src/assignment/train.py"]
