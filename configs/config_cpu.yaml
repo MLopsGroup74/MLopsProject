@@ -16,5 +16,5 @@ workerPoolSpecs:
       - "1"
       - --batch_size
       - "32"
-      - num_workers
+      - --num_workers
       - "2"
