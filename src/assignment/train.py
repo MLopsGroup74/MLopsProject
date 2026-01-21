@@ -21,7 +21,7 @@ import argparse
 from pathlib import Path
 import pytorch_lightning as pl
 from loguru import logger
-import logging_setup
+#import logging_setup
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from src.assignment.data import ImageFolderDataModule
