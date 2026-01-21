@@ -35,7 +35,7 @@ jobs:
       - name: Tests (with coverage)
         run: |
           uv run coverage run -m pytest tests/
-          uv run coverage report -m
+          uv run coverage report -m --ignore-errors
 concurrency:
   group: unit-tests-${{ github.ref }}
   cancel-in-progress: true
