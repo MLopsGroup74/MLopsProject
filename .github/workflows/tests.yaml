@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ${{ matrix.operating-system }}
@@ -33,5 +37,3 @@ jobs:
         run: |
           uv run coverage run -m pytest tests/
           uv run coverage report -m
-concurrency:
-  cancel-in-progress: true
