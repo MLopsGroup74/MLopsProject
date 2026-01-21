@@ -218,3 +218,8 @@ __marimo__/
 models/*.pth
 models/*.ckpt
 lightning_logs/
+
+#Monitoring
+monitoring/prediction_database.csv
+monitoring/reference_database.csv
+monitoring/*.html

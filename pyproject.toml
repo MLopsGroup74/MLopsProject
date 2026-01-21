@@ -19,9 +19,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
+    "evidently==0.4.32",
     "fastapi==0.115.6",
     "loguru>=0.7.3",
     "numpy>=2.4.0",
+    "pandas>=2.3.3",
     "python-multipart>=0.0.21",
     "pytorch-lightning>=2.6.0",
     "scikit-learn>=1.8.0",
