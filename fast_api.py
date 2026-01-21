@@ -3,13 +3,15 @@ import os
 import torch
 import torch.nn.functional as F
 import numpy as np
+import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from PIL import Image
 from torchvision import transforms as T
 from contextlib import asynccontextmanager
-from datetime import datetime
 from src.assignment.model import ConvolutionalNetwork
 from src.assignment.data import ImageFolderDataModule
+from transformers import CLIPModel, CLIPProcessor
+#from pyexpat import model
 
 """
 run the fast api by running:
@@ -18,7 +20,7 @@ uv run uvicorn fast_api:app --host 0.0.0.0 --port 8000
 afterwards go to http://localhost:8000/docs for interactive api
 """
 # Configuration
-CKPT_PATH = "models/model-epoch=17-val_acc=0.38.ckpt" # Ensure this filename is correct
+CKPT_PATH = "models/model-epoch=17-val_acc=0.38.ckpt" 
 DATA_DIR = "PokemonData/"
 
 # Define the exact same transforms used during training/validation
@@ -39,37 +41,37 @@ async def lifespan(app: FastAPI):
     # load_from_checkpoint restores weights and hyperparameters
     app.state.model = ConvolutionalNetwork.load_from_checkpoint(CKPT_PATH)
     app.state.model.eval() # CRITICAL: Sets layers like Dropout to eval mode
+
+    print("Startup: Loading CLIP model for monitoring...")
+    app.state.clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+    app.state.clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+
+
     print("Startup complete. Database will be created on first prediction.")
     yield
     print("Shutdown: Cleaning up...")
     del app.state.model
+    del app.state.clip_model
 
 #The background task function
-def extract_image_features(img: Image.Image):
+def extract_image_features(img: Image.Image, clip_model, clip_processor):
     """Extracts the same features from the image"""
-    img_gray = img.convert("L")  # Convert to grayscale for feature extraction
-    img_np = np.array(img_gray)
-    
-    avg_brightness = np.mean(img_np)
-    contrast = np.std(img_np)
-    sharpness = np.mean(np.abs(np.gradient(img_np)))
-    
-    return float(avg_brightness), float(contrast), float(sharpness)
+    inputs = clip_processor(images=img, return_tensors="pt")
+    with torch.no_grad():
+        img_emb = clip_model.get_image_features(**inputs)
+    return img_emb.squeeze().tolist()
 
-def add_to_database(brightness: float, contrast: float, sharpness: float, prediction: str):
-    """Saves the timestamp, features, and prediction to CSV."""
-    try:
-        os.makedirs("monitoring", exist_ok=True)
-        file_path = "monitoring/prediction_database.csv"
-        file_exists = os.path.isfile(file_path)
-        
-        with open(file_path, "a") as f:
-            if not file_exists:
-                f.write("brightness,contrast,sharpness,prediction\n")
-            f.write(f"{brightness},{contrast},{sharpness},{prediction}\n")
-        print(f"DEBUG: Successfully saved to {os.path.abspath(file_path)}")
-    except Exception as e:
-        print(f"DEBUG ERROR: Could not write to file: {e}")
+def add_to_database(features_list: list, prediction: str):
+    os.makedirs("monitoring", exist_ok=True)
+    file_path= "monitoring/prediction_database.csv"
+    file_exists= os.path.isfile(file_path)
+
+    row = {f"f_{i}": val for i, val in enumerate(features_list)}
+    row["prediction"] = prediction
+    
+    df = pd.DataFrame([row])
+    df.to_csv(file_path, mode='a', header=not file_exists, index=False)
+
 
 app = FastAPI(title="Pokémon Inference API", lifespan=lifespan)
 
@@ -89,7 +91,8 @@ async def predict(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid image file: {e}")
     
-    brightness, contrast, sharpness = extract_image_features(img)
+    clip_features = extract_image_features(img, app.state.clip_model, app.state.clip_processor)
+    
 
     # 2. Preprocess image
     input_tensor = inference_transform(img).unsqueeze(0) # Add batch dimension (1, 3, 224, 224)
@@ -104,18 +107,11 @@ async def predict(
     pred_label = app.state.class_names[pred_idx.item()]
 
     #Add the task to run AFTER the response is sent
-    background_tasks.add_task(
-        add_to_database, 
-        brightness, 
-        contrast, 
-        sharpness, 
-        pred_label
-    )
+    background_tasks.add_task(add_to_database, clip_features, pred_label)
         
     return {
         "prediction": app.state.class_names[pred_idx.item()],
         "confidence": float(conf.item()),
         "class_index": int(pred_idx.item())
     }
-
 
