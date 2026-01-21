@@ -21,6 +21,8 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from src.assignment.data import ImageFolderDataModule
 from src.assignment.model import ConvolutionalNetwork
+import tempfile
+import subprocess
 
 
 
@@ -39,24 +41,35 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+def resolve_data_path(data_dir: str) -> Path:
+    if data_dir.startswith("gs://"):
+        temp_dir = Path(tempfile.mkdtemp())
+        subprocess.run(["gsutil", "-m", "cp", "-r", f"{data_dir}/*", str(temp_dir)], check=True)
+        return temp_dir
+    else:
+        return Path(data_dir)
+
+
+
 def main() -> None:
     args = parse_args()
     pl.seed_everything(args.seed, workers=True)
 
-    #logging the configuration 
+    #logging the configuration
     logger.info(f"Training pipeline started with config: {vars(args)}")
 
     # Initialize the WandbLogger #os.getenv("WANDB_PROJECT"), din't work
     wandb_logger = WandbLogger(
-        project="mlops_assignment", 
+        project="mlops_assignment",
         entity=os.getenv("WANDB_ENTITY"),
         config=vars(args) # logs all your hyperparameters (lr, batch_size, etc.) to Wandb
     )
 
     try:
-        #Data Setup
+        data_path = resolve_data_path(args.data_dir)
+
         dm = ImageFolderDataModule(
-            data_dir=Path(args.data_dir),
+            data_dir=data_path,
             batch_size=args.batch_size,
             num_workers=args.num_workers,
             img_size=args.img_size,
@@ -69,13 +82,13 @@ def main() -> None:
 
         #Define the checkpoint callback to save the best model (highest validation accuracy)
         checkpoint_callback = ModelCheckpoint(
-            dirpath="models/",              
+            dirpath="models/",
             filename="model-{epoch:02d}-{val_acc:.2f}",
-            save_top_k=1,                   
-            monitor="val_acc",              
+            save_top_k=1,
+            monitor="val_acc",
             mode="max",
         )
-        
+
         model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
 
         #Hardware check
@@ -93,7 +106,7 @@ def main() -> None:
         #Starting the actual training loop
         logger.warning(f"Starting model training for {args.max_epochs} epochs...")
         trainer.fit(model, dm, ckpt_path=args.ckpt_path)
-        
+
 
         # Testing
         logger.info("Starting testing phase...")
@@ -101,11 +114,10 @@ def main() -> None:
 
         #Success notification
         logger.success("Training and testing completed successfully!")
-    
+
     except Exception as e:
         # Error handling (Saves the error traceback to your log file)
         logger.exception(f"The program crashed due to an unexpected error: {e}")
 
 if __name__ == "__main__":
     main()
-
