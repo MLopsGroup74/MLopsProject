@@ -26,6 +26,9 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Use matrix python in uv
+        run: uv python pin ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: uv sync --dev --locked
 
