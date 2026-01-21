@@ -25,6 +25,7 @@ dependencies = [
     "loguru>=0.7.3",
     "numpy>=2.4.0",
     "python-multipart>=0.0.21",
+    "python-multipart>=0.0.21",
     "pytorch-lightning>=2.6.0",
     "scikit-learn>=1.8.0",
     "torch==2.6.0",
@@ -59,6 +60,7 @@ torchvision = [
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
+
 
 [tool.coverage.run]
 omit = ["tests/*"]

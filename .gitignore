@@ -219,6 +219,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Logs and data
 profiler_logs/
 .DS_Store
 /PokemonData
+lightning_logs/
+
+# Models
+models/*.pth
+models/*.ckpt
