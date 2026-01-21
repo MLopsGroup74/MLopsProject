@@ -1,0 +1,6 @@
+outs:
+- md5: e62491051c47e68f6c977eac741d4e8d.dir
+  size: 454135119
+  nfiles: 6838
+  hash: md5
+  path: PokemonData

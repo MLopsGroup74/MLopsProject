@@ -9,6 +9,7 @@ __pycache__/
 # Files
 PokemonData/
 .DS_Store
+sample/
 
 mlops_assignment/4waua6x7/checkpoints/
 models/
@@ -220,3 +221,4 @@ marimo/_lsp/
 __marimo__/
 profiler_logs/
 .DS_Store
+/PokemonData
