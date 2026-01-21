@@ -2,7 +2,7 @@ name: Unit Tests
 
 on:
   push:
-    branches: [main, gertrud]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -11,8 +11,8 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ["macos-latest"]
-        python-version: ["3.11"]
+        operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,16 +26,10 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Use matrix python in uv
-        run: uv python pin ${{ matrix.python-version }}
-
       - name: Install dependencies
         run: uv sync --dev --locked
 
       - name: Tests (with coverage)
         run: |
           uv run coverage run -m pytest tests/
-          uv run coverage report -m --ignore-errors
-concurrency:
-  group: unit-tests-${{ github.ref }}
-  cancel-in-progress: true
+          uv run coverage report -m
