@@ -83,6 +83,19 @@ def main() -> None:
         )
         dm.setup()
 
+        # 2. UPDATED CHECKPOINT PATH
+        # We check if we are on GCP (path starts with /gcs/) to save to the bucket
+        # Otherwise, we save locally.
+        save_path = "/gcs/mlopsproject-data/models/" if args.data_dir.startswith("/gcs/") else "models/"
+
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=save_path,
+            filename="pokemon-{epoch:02d}-{val_acc:.2f}",
+            save_top_k=1,
+            monitor="val_acc",
+            mode="max",
+        )
+
         #Data status check
         logger.info(f"DataModule initialized. Found {dm.num_classes} classes.")
 
