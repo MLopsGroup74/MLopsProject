@@ -72,12 +72,6 @@ omit = ["tests/*"]
 markers = [
   "fast: quick running tests"
 ]
-
-[tool.ruff]
-line-length = 120
-select = ["E", "F"]
-
-[tool.pytest.ini_options]
 testpaths = ["tests"]
 norecursedirs = [
   "google-cloud-sdk",
@@ -90,3 +84,7 @@ norecursedirs = [
   "dist",
   "build",
 ]
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F"]
