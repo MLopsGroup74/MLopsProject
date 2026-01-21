@@ -31,18 +31,6 @@ import subprocess
 import wandb
 from dotenv import load_dotenv
 import os
-load_dotenv()
-
-api_key = os.getenv("WANDB_API_KEY")
-
-print("Environment (Wandb) variables loaded from .env")
-
-
-
-wandb.login(key=api_key)
-
-
-
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()

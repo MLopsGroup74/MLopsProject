@@ -225,6 +225,10 @@ profiler_logs/
 .DS_Store
 /PokemonData
 lightning_logs/
+config_cpu.yaml
+.dvc/cache
+.dvc/tmp
+/PokemonData/
 
 # Models
 models/*.pth

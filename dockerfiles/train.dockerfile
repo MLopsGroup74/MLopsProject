@@ -1,38 +1,32 @@
 # Use the official uv image
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
-# 1. Set the working directory FIRST
+# 1. Set the working directory
 WORKDIR /app
 
-# 2. Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# 2. Install system dependencies (build-essential helps with C-based packages)
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 3. Copy only dependency files first (for caching)
+# 3. Copy only dependency files first to maximize Docker layer caching
 COPY pyproject.toml uv.lock ./
 
-# 4. Install dependencies
-# --frozen ensures we use the lockfile exactly
-# --no-install-project skips installing your local 'src' as a package for now
+# 4. Pre-install dependencies into the image's virtual environment
+# We use --frozen to ensure it matches your lockfile exactly
 RUN uv sync --frozen --no-install-project --no-dev
 
-# 5. Copy the rest of the application
+# 5. Copy your entire source code (including src/ and logging_setup.py)
 COPY src/ src/
 COPY README.md README.md
 
-# 6. Final sync to install the project itself
+# 6. Final sync to include your project code in the environment
 RUN uv sync --frozen --no-dev
 
-
-# Add PYTHONPATH so it finds logging_setup.py and src
+# 7. CRITICAL: Add the .venv to the PATH
+ENV PATH="/app/.venv/bin:$PATH"
+# Ensure 'import assignment' works from the root
 ENV PYTHONPATH="/app:/app/src"
 
-# Run with python directly to skip the 'uv' sync check at runtime
-ENTRYPOINT ["python", "-m", "assignment.train"]
-
-# 7. Use the virtual environment's path automatically
-#ENV PATH="/app/.venv/bin:$PATH"
-
-# Set entrypoint
-#ENTRYPOINT ["uv", "run", "src/assignment/train.py"]
+# 8. Use uv run with --no-sync to ensure it starts instantly without internet
+# We use the module syntax (-m) to avoid pathing issues with 'src'
+ENTRYPOINT ["uv", "run", "--no-sync", "python", "-m", "assignment.train"]
