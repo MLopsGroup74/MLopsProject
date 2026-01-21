@@ -31,6 +31,7 @@ import subprocess
 import wandb
 from dotenv import load_dotenv
 import os
+from pytorch_lightning.callbacks import EarlyStopping
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
@@ -122,14 +123,24 @@ def main() -> None:
         #Hardware check
         logger.info(f"Running on accelerator: {args.accelerator} with {args.devices} device(s)")
 
+        # 1. Initialize the early stopping callback
+        early_stop_callback = EarlyStopping(
+            monitor="val_acc",
+            patience=5,
+            mode="max",
+            verbose=True
+        )
+
+        # 2. Add it to your Trainer's callbacks list
         trainer = pl.Trainer(
             max_epochs=args.max_epochs,
             accelerator=args.accelerator,
             devices=args.devices,
-            logger=wandb_logger, #tells Lightning to send metrics to W&B
-            callbacks=[checkpoint_callback],
+            logger=wandb_logger,
+            callbacks=[checkpoint_callback, early_stop_callback], # Include BOTH callbacks here
             log_every_n_steps=1,
         )
+
 
         #Starting the actual training loop
         logger.warning(f"Starting model training for {args.max_epochs} epochs...")
