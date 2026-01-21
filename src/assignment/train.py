@@ -29,6 +29,12 @@ from src.assignment.model import ConvolutionalNetwork
 import tempfile
 import subprocess
 
+import load_from_env
+import wandb
+
+wandb.login(key=load_from_env.api_key)
+
+
 
 
 def parse_args() -> argparse.Namespace:

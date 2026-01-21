@@ -1,0 +1,20 @@
+# config_cpu.yaml
+workerPoolSpecs:
+    machineSpec:
+        machineType: n1-highmem-2
+    replicaCount: 1
+    containerSpec:
+        imageUri: europe-west1-docker.pkg.dev/dtumlops-484109/projectregistry/mlops-image:latest
+        command:
+          - python3
+          - src/assignment/train.py
+        args:
+          - --data_dir
+          - /gcs/mlopsproject-data/PokemonData
+          - --max_epochs
+          - "1"
+          - --batch_size
+          - "2"
+        env:
+          - name: WANDB_API_KEY
+            value: "${WANDB_API_KEY}"
