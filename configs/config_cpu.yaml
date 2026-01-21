@@ -15,4 +15,4 @@ workerPoolSpecs:
       - --max_epochs
       - "1"
       - --batch_size
-      - "2"
+      - "32"

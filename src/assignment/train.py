@@ -90,7 +90,7 @@ def main() -> None:
 
         checkpoint_callback = ModelCheckpoint(
             dirpath=save_path,
-            filename="pokemon-{epoch:02d}-{val_acc:.2f}",
+            filename="model-{epoch:02d}-{val_acc:.2f}",
             save_top_k=1,
             monitor="val_acc",
             mode="max",
@@ -99,14 +99,14 @@ def main() -> None:
         #Data status check
         logger.info(f"DataModule initialized. Found {dm.num_classes} classes.")
 
-        #Define the checkpoint callback to save the best model (highest validation accuracy)
-        checkpoint_callback = ModelCheckpoint(
-            dirpath="models/",
-            filename="model-{epoch:02d}-{val_acc:.2f}",
-            save_top_k=1,
-            monitor="val_acc",
-            mode="max",
-        )
+        # #Define the checkpoint callback to save the best model (highest validation accuracy)
+        # checkpoint_callback = ModelCheckpoint(
+        #     dirpath="models/",
+        #     filename="model-{epoch:02d}-{val_acc:.2f}",
+        #     save_top_k=1,
+        #     monitor="val_acc",
+        #     mode="max",
+        # )
 
         model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
 
