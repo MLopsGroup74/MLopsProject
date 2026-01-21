@@ -7,7 +7,10 @@ Example:
   python train.py --data_dir /path/to/PokemonData --max_epochs 20 --batch_size 32
 
 Example for running from current best model from the root:
-    uv run python -m src.assignment.train   --data_dir ./PokemonData   --max_epochs 20   --batch_size 32   --lr 1e-4   --ckpt_path models/model-epoch=17-val_acc=0.38.ckpt
+    uv run python -m src.assignment.train.py   --data_dir ./PokemonData   --max_epochs 20   --batch_size 32   --lr 1e-4   --ckpt_path models/model-epoch=17-val_acc=0.38.ckpt
+
+Example for GCS bucket:
+    uv run python3 -m src.assignment.train.py --data_dir gs://mlopsproject-data/PokemonData --max_epochs 1 --batch_size 2
 """
 
 from __future__ import annotations
