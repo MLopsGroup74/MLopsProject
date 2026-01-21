@@ -48,12 +48,21 @@ def parse_args() -> argparse.Namespace:
 
 
 def resolve_data_path(data_dir: str) -> Path:
+    # 1. If it's a cloud URI (MacBook testing mode), download it
     if data_dir.startswith("gs://"):
+        logger.info(f"Downloading data from {data_dir} to temporary directory...")
         temp_dir = Path(tempfile.mkdtemp())
         subprocess.run(["gsutil", "-m", "cp", "-r", f"{data_dir}/*", str(temp_dir)], check=True)
         return temp_dir
-    else:
-        return Path(data_dir)
+
+    # 2. If it's a local path or GCP mount (/gcs/...), just use it directly
+    path = Path(data_dir)
+    if not path.exists():
+        # This safety check helps you debug if the mount fails
+        logger.error(f"Data path not found: {data_dir}")
+        raise FileNotFoundError(f"Could not find data at {data_dir}")
+
+    return path
 
 
 

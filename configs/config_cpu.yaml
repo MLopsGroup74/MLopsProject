@@ -13,6 +13,8 @@ workerPoolSpecs:
       - --data_dir
       - /gcs/mlopsproject-data/PokemonData
       - --max_epochs
-      - "5"
+      - "1"
       - --batch_size
       - "32"
+      - num_workers
+      - "2"
