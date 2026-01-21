@@ -19,4 +19,4 @@ RUN uv sync --locked --no-cache
 
 #ENTRYPOINT ["uv", "run", "src/assignment/train.py", "--data_dir", "sample", "--max_epochs", "1", "--batch_size", "2"]
 
-ENTRYPOINT ["uv", "run", "src/assignment/train-kopi.py"]
+ENTRYPOINT ["uv", "run", "src/assignment/train.py"]
