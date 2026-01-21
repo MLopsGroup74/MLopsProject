@@ -15,6 +15,6 @@ workerPoolSpecs:
           - "1"
           - --batch_size
           - "2"
-        secretenv:
+        env:
           - name: WANDB_API_KEY
             value: "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"
