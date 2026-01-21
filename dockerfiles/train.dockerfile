@@ -20,6 +20,7 @@ RUN uv sync --frozen --no-install-project --no-dev
 # 5. Copy the rest of the application
 COPY src/ src/
 COPY README.md README.md
+COPY logging_setup.py logging_setup.py
 
 # 6. Final sync to install the project itself
 RUN uv sync --frozen --no-dev
