@@ -24,9 +24,8 @@ COPY README.md README.md
 # 6. Final sync to install the project itself
 RUN uv sync --frozen --no-dev
 
-# Add the current directory to PYTHONPATH as a backup
-ENV PYTHONPATH="/app"
+# 7. Use the virtual environment's path automatically
+ENV PATH="/app/.venv/bin:$PATH"
 
-# Use -m to run the script as a module
-# Note: Use dots (.) instead of slashes (/) and remove the .py extension
-ENTRYPOINT ["python", "-m", "src.assignment.train"]
+# Set entrypoint
+ENTRYPOINT ["uv", "run", "src/assignment/train.py"]

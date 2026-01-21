@@ -24,15 +24,22 @@ from loguru import logger
 #import logging_setup
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
-from src.assignment.data import ImageFolderDataModule
-from src.assignment.model import ConvolutionalNetwork
+from assignment.data import ImageFolderDataModule
+from assignment.model import ConvolutionalNetwork
 import tempfile
 import subprocess
-
-import load_from_env
 import wandb
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-wandb.login(key=load_from_env.api_key)
+api_key = os.getenv("WANDB_API_KEY")
+
+print("Environment (Wandb) variables loaded from .env")
+
+
+
+wandb.login(key=api_key)
 
 
 
