@@ -3,7 +3,7 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS base
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
-COPY PokemonData/ PokemonData/
+#COPY PokemonData/ PokemonData/
 COPY models/ models/
 COPY src src/
 

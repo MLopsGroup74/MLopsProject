@@ -1,0 +1,9 @@
+cat <<EOF > .gcloudignore
+.git/
+.venv/
+__pycache__/
+.pytest_cache/
+# Do NOT ignore these:
+!models/
+!src/
+EOF

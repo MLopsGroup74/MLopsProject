@@ -1,0 +1,16 @@
+# Ignore the virtual environment
+.venv/
+venv/
+
+# Ignore Python artifacts
+**/__pycache__/
+*.pyc
+
+# Ignore data and large models (Adjust paths as needed)
+data/
+models/
+outputs/
+.git/
+
+# Ignore notebooks and checkpoints
+.ipynb_checkpoints/
