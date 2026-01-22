@@ -6,6 +6,7 @@ import json
 
 URL = "https://europe-west1-dtumlops-484109.cloudfunctions.net/pokemon-classifier"
 
+
 def prepare_image(image_path):
     """Converts a local image to the list format expected by the API."""
     img = Image.open(image_path).convert("RGB").resize((224, 224))

@@ -30,7 +30,7 @@ class ConvolutionalNetwork(torch.nn.Module):
 
 # Global variables to load the model once
 BUCKET_NAME = "mlopsproject-data"
-MODEL_FILE = "models/model-epoch=04-val_acc=0.20.ckpt"
+MODEL_FILE = "models/model-epoch=20-val_acc=0.38.ckpt"
 model = None
 
 def load_model():
