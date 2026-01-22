@@ -1,0 +1,4 @@
+functions-framework>=3.7.0
+google-cloud-storage
+torch
+torchvision
