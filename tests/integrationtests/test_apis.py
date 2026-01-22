@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import json
 
-URL = "https://pokemon-classifier-952726112544.europe-west1.run.app"
+URL = "https://europe-west1-dtumlops-484109.cloudfunctions.net/pokemon-classifier"
 
 def prepare_image(image_path):
     """Converts a local image to the list format expected by the API."""
