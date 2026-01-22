@@ -1,9 +1,21 @@
+"""Training profiler for performance analysis.
+
+This script profiles the training loop using PyTorch Profiler to identify bottlenecks.
+Results are saved as TensorBoard traces for visualization.
+
+Usage:
+    uv run python train_profiler.py
+    tensorboard --logdir profiler_logs/train
+"""
+
+from pathlib import Path
+
 import torch
 from torch import nn, optim
-from torch.profiler import profile, record_function, ProfilerActivity, schedule, tensorboard_trace_handler
-from src.assignment.model import ConvolutionalNetwork
+from torch.profiler import ProfilerActivity, profile, record_function, schedule, tensorboard_trace_handler
+
 from src.assignment.data import ImageFolderDataModule
-from pathlib import Path
+from src.assignment.model import ConvolutionalNetwork
 
 # --------------------
 # Config

@@ -32,6 +32,14 @@ class ConvolutionalNetwork(pl.LightningModule):
         self.lr = lr
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the network.
+
+        Args:
+            x: Input tensor of shape (batch_size, 3, 224, 224).
+
+        Returns:
+            Logits tensor of shape (batch_size, num_classes).
+        """
         x = F.relu(self.conv1(x))
         x = F.max_pool2d(x, 2, 2)
         x = F.relu(self.conv2(x))
@@ -45,6 +53,15 @@ class ConvolutionalNetwork(pl.LightningModule):
         return x
 
     def _shared_step(self, batch, stage: str) -> torch.Tensor:
+        """Shared logic for train/val/test steps.
+
+        Args:
+            batch: Tuple of (images, labels).
+            stage: One of 'train', 'val', or 'test'.
+
+        Returns:
+            Computed loss value.
+        """
         x, y = batch
         logits = self(x)
         loss = F.cross_entropy(logits, y)
@@ -56,13 +73,39 @@ class ConvolutionalNetwork(pl.LightningModule):
         return loss
 
     def training_step(self, batch, batch_idx) -> torch.Tensor:
+        """Training step executed by PyTorch Lightning.
+
+        Args:
+            batch: Batch of training data.
+            batch_idx: Index of the current batch.
+
+        Returns:
+            Training loss.
+        """
         return self._shared_step(batch, "train")
 
     def validation_step(self, batch, batch_idx) -> None:
+        """Validation step executed by PyTorch Lightning.
+
+        Args:
+            batch: Batch of validation data.
+            batch_idx: Index of the current batch.
+        """
         self._shared_step(batch, "val")
 
     def test_step(self, batch, batch_idx) -> None:
+        """Test step executed by PyTorch Lightning.
+
+        Args:
+            batch: Batch of test data.
+            batch_idx: Index of the current batch.
+        """
         self._shared_step(batch, "test")
 
     def configure_optimizers(self):
+        """Configure optimizer for training.
+
+        Returns:
+            Adam optimizer instance.
+        """
         return torch.optim.Adam(self.parameters(), lr=self.lr)

@@ -1,10 +1,12 @@
+"""Data drift monitoring using Evidently.
+
+Compares reference and current prediction data to detect drift in features and targets.
+Generates test results and HTML reports for monitoring dashboard.
+"""
+
 import pandas as pd
+from evidently.metric_preset import DataDriftPreset, DataQualityPreset, TargetDriftPreset
 from evidently.report import Report
-from evidently.metric_preset import (
-    DataDriftPreset,
-    DataQualityPreset,
-    TargetDriftPreset,
-)
 from evidently.test_suite import TestSuite
 from evidently.tests import (
     TestAccuracyScore,

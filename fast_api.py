@@ -1,24 +1,29 @@
+"""FastAPI application for Pokémon image classification.
+
+This module provides a REST API for classifying Pokémon images using a trained CNN model.
+It includes CLIP-based feature extraction for monitoring and logs predictions to GCP.
+
+To run: uv run uvicorn fast_api:app --host 0.0.0.0 --port 8000
+API docs: http://localhost:8000/docs
+"""
+
 import io
+import json
+from contextlib import asynccontextmanager
+from datetime import datetime
+from typing import AsyncIterator
+
 import torch
 import torch.nn.functional as F
-import json
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from google.cloud import storage
 from PIL import Image
 from torchvision import transforms as T
-from contextlib import asynccontextmanager
-from src.assignment.model import ConvolutionalNetwork
-from src.assignment.data import ImageFolderDataModule
 from transformers import CLIPModel, CLIPProcessor
-from google.cloud import storage
-from datetime import datetime
-# from pyexpat import model
 
-"""
-run the fast api by running:
-uv run uvicorn fast_api:app --host 0.0.0.0 --port 8000
+from src.assignment.data import ImageFolderDataModule
+from src.assignment.model import ConvolutionalNetwork
 
-afterwards go to http://localhost:8000/docs for interactive api
-"""
 # Configuration
 CKPT_PATH = "models/model-epoch=17-val_acc=0.38.ckpt"
 DATA_DIR = "PokemonData/"
@@ -35,8 +40,15 @@ inference_transform = T.Compose(
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Load model and class names once at startup."""
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Manage application lifespan for loading and cleaning up resources.
+
+    Args:
+        app: FastAPI application instance.
+
+    Yields:
+        None after loading models and resources.
+    """
     print("Startup: Loading DataModule for class names...")
     dm = ImageFolderDataModule(data_dir=DATA_DIR)
     app.state.class_names = dm.class_names
@@ -57,18 +69,30 @@ async def lifespan(app: FastAPI):
     del app.state.clip_model
 
 
-# The background task function
-def extract_image_features(img: Image.Image, clip_model, clip_processor):
-    """Extracts the same features from the image"""
+def extract_image_features(img: Image.Image, clip_model: CLIPModel, clip_processor: CLIPProcessor) -> list[float]:
+    """Extract CLIP embeddings from an image for monitoring purposes.
+
+    Args:
+        img: PIL Image to extract features from.
+        clip_model: Pretrained CLIP model.
+        clip_processor: CLIP processor for image preprocessing.
+
+    Returns:
+        List of float values representing the image embedding.
+    """
     inputs = clip_processor(images=img, return_tensors="pt")
     with torch.no_grad():
         img_emb = clip_model.get_image_features(**inputs)
     return img_emb.squeeze().tolist()
 
 
-def save_prediction_to_gcp(features: list, prediction: str):
-    "Uploads prediction features as json file to a bucket"
+def save_prediction_to_gcp(features: list[float], prediction: str) -> None:
+    """Upload prediction features and label to Google Cloud Storage.
 
+    Args:
+        features: CLIP embedding features extracted from the image.
+        prediction: Predicted Pokémon class name.
+    """
     try:
         client = storage.Client()
         bucket = client.bucket(BUCKET_NAME)
@@ -90,13 +114,29 @@ app = FastAPI(title="Pokémon Inference API", lifespan=lifespan)
 
 
 @app.get("/")
-def root():
+def root() -> dict[str, str]:
+    """Root endpoint returning API status.
+
+    Returns:
+        Dictionary with status message.
+    """
     return {"message": "Pokémon Classifier API is running!"}
 
 
 @app.post("/predict")
-async def predict(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    # 1. Load image from upload
+async def predict(background_tasks: BackgroundTasks, file: UploadFile = File(...)) -> dict[str, str | float | int]:
+    """Predict Pokémon class from uploaded image.
+
+    Args:
+        background_tasks: FastAPI background tasks for async GCP logging.
+        file: Uploaded image file.
+
+    Returns:
+        Dictionary containing prediction, confidence score, and class index.
+
+    Raises:
+        HTTPException: If image file is invalid or cannot be processed.
+    """
     try:
         img_bytes = await file.read()
         img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
