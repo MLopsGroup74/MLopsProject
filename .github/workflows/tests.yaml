@@ -11,7 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  unit-test:
+    name: Unit test
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
@@ -46,6 +47,11 @@ jobs:
         - uses: actions/setup-python@v5
           with:
             python-version: "3.11"
+
+        - name: Install uv
+          uses: astral-sh/setup-uv@v3
+          with:
+            enable-cache: true
 
         - name: Install dependencies
           run: uv sync --dev --locked
