@@ -5,18 +5,20 @@ import numpy as np
 from PIL import Image
 from locust import HttpUser, task, between
 
+
 # --- IMAGE PREPARATION HELPER ---
 def prepare_image_payload(image_path):
     """Converts a local image to the list format expected by the API."""
     try:
         img = Image.open(image_path).convert("RGB").resize((224, 224))
         img_array = np.array(img).transpose(2, 0, 1)  # Change to (C, H, W)
-        img_array = img_array / 255.0                 # Normalize
+        img_array = img_array / 255.0  # Normalize
         flattened_data = img_array.flatten().tolist()
         return {"image_data": flattened_data}
     except Exception as e:
         logging.error(f"Could not prepare image payload: {e}")
-        return {"image_data": [0.0] * 150528} # Fallback to dummy
+        return {"image_data": [0.0] * 150528}  # Fallback to dummy
+
 
 # --- PATH LOGIC ---
 # locustfile.py is in tests/performancetests/
@@ -26,6 +28,7 @@ _image_path = _repo_root / "tests" / "test_data" / "test_pokemon.jpg"
 # Prepare the payload ONCE at module level
 logging.info(f"Loading test image from: {_image_path}")
 REAL_PAYLOAD = prepare_image_payload(_image_path)
+
 
 class PokemonUser(HttpUser):
     wait_time = between(1, 2)

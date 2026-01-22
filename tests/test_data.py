@@ -1,11 +1,9 @@
-import shutil
 from pathlib import Path
 
 import torch
 from PIL import Image
 
 from src.assignment.data import ImageFolderDataModule
-from tests import _PATH_DATA
 
 
 def _make_tiny_imagefolder(root: Path, n_per_class: int = 10):

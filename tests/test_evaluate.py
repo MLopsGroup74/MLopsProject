@@ -64,13 +64,20 @@ def test_evaluate_smoke(monkeypatch, tmp_path, capsys) -> None:
     # 4) Run evaluation script entrypoint with CLI args
     args = [
         "evaluate.py",
-        "--data_dir", str(data_dir),
-        "--checkpoint", str(ckpt_path),
-        "--batch_size", "2",
-        "--num_workers", "0",
-        "--img_size", "224",
-        "--accelerator", "cpu",
-        "--devices", "1",
+        "--data_dir",
+        str(data_dir),
+        "--checkpoint",
+        str(ckpt_path),
+        "--batch_size",
+        "2",
+        "--num_workers",
+        "0",
+        "--img_size",
+        "224",
+        "--accelerator",
+        "cpu",
+        "--devices",
+        "1",
     ]
     monkeypatch.setattr(sys, "argv", args)
 

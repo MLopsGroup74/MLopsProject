@@ -31,14 +31,22 @@ def test_train_minimal(monkeypatch, tmp_path) -> None:
 
     args = [
         "train.py",
-        "--data_dir", str(data_dir),
-        "--batch_size", "2",
-        "--num_workers", "0",
-        "--img_size", "224",
-        "--max_epochs", "1",
-        "--lr", "1e-3",
-        "--accelerator", "cpu",
-        "--devices", "1",
+        "--data_dir",
+        str(data_dir),
+        "--batch_size",
+        "2",
+        "--num_workers",
+        "0",
+        "--img_size",
+        "224",
+        "--max_epochs",
+        "1",
+        "--lr",
+        "1e-3",
+        "--accelerator",
+        "cpu",
+        "--devices",
+        "1",
     ]
     monkeypatch.setattr(sys, "argv", args)
 

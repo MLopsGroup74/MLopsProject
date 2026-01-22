@@ -7,31 +7,33 @@ Example:
   python train.py --data_dir /path/to/PokemonData --max_epochs 20 --batch_size 32
 
 Example for running from current best model from the root:
-    uv run python -m src.assignment.train.py   --data_dir ./PokemonData   --max_epochs 20   --batch_size 32   --lr 1e-4   --ckpt_path models/model-epoch=17-val_acc=0.38.ckpt
+    uv run python -m src.assignment.train.py   --data_dir ./PokemonData \
+        --max_epochs 20   --batch_size 32   --lr 1e-4 \
+        --ckpt_path models/model-epoch=17-val_acc=0.38.ckpt
 
 Example for GCS bucket:
-    uv run python3 -m src.assignment.train.py --data_dir gs://mlopsproject-data/PokemonData --max_epochs 1 --batch_size 2
+    uv run python3 -m src.assignment.train.py \
+        --data_dir gs://mlopsproject-data/PokemonData --max_epochs 1 --batch_size 2
     test
 
 """
 
 from __future__ import annotations
-import os
 import argparse
+import os
+import subprocess
+import tempfile
 from pathlib import Path
 import pytorch_lightning as pl
 from loguru import logger
-#import logging_setup
+
+# import logging_setup
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from assignment.data import ImageFolderDataModule
 from assignment.model import ConvolutionalNetwork
-import tempfile
-import subprocess
-import wandb
-from dotenv import load_dotenv
-import os
 from pytorch_lightning.callbacks import EarlyStopping
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
@@ -66,19 +68,18 @@ def resolve_data_path(data_dir: str) -> Path:
     return path
 
 
-
 def main() -> None:
     args = parse_args()
     pl.seed_everything(args.seed, workers=True)
 
-    #logging the configuration
+    # logging the configuration
     logger.info(f"Training pipeline started with config: {vars(args)}")
 
     # Initialize the WandbLogger #os.getenv("WANDB_PROJECT"), din't work
     wandb_logger = WandbLogger(
         project="mlops_assignment",
         entity=os.getenv("WANDB_ENTITY"),
-        config=vars(args) # logs all your hyperparameters (lr, batch_size, etc.) to Wandb
+        config=vars(args),  # logs all your hyperparameters (lr, batch_size, etc.) to Wandb
     )
 
     try:
@@ -106,7 +107,7 @@ def main() -> None:
             mode="max",
         )
 
-        #Data status check
+        # Data status check
         logger.info(f"DataModule initialized. Found {dm.num_classes} classes.")
 
         # #Define the checkpoint callback to save the best model (highest validation accuracy)
@@ -120,16 +121,11 @@ def main() -> None:
 
         model = ConvolutionalNetwork(num_classes=dm.num_classes, lr=args.lr)
 
-        #Hardware check
+        # Hardware check
         logger.info(f"Running on accelerator: {args.accelerator} with {args.devices} device(s)")
 
         # 1. Initialize the early stopping callback
-        early_stop_callback = EarlyStopping(
-            monitor="val_acc",
-            patience=5,
-            mode="max",
-            verbose=True
-        )
+        early_stop_callback = EarlyStopping(monitor="val_acc", patience=5, mode="max", verbose=True)
 
         # 2. Add it to your Trainer's callbacks list
         trainer = pl.Trainer(
@@ -137,26 +133,25 @@ def main() -> None:
             accelerator=args.accelerator,
             devices=args.devices,
             logger=wandb_logger,
-            callbacks=[checkpoint_callback, early_stop_callback], # Include BOTH callbacks here
+            callbacks=[checkpoint_callback, early_stop_callback],  # Include BOTH callbacks here
             log_every_n_steps=1,
         )
 
-
-        #Starting the actual training loop
+        # Starting the actual training loop
         logger.warning(f"Starting model training for {args.max_epochs} epochs...")
         trainer.fit(model, dm, ckpt_path=args.ckpt_path)
-
 
         # Testing
         logger.info("Starting testing phase...")
         trainer.test(model, datamodule=dm)
 
-        #Success notification
+        # Success notification
         logger.success("Training and testing completed successfully!")
 
     except Exception as e:
         # Error handling (Saves the error traceback to your log file)
         logger.exception(f"The program crashed due to an unexpected error: {e}")
+
 
 if __name__ == "__main__":
     main()

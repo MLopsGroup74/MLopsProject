@@ -27,13 +27,7 @@ Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
 # --------------------
 # Data
 # --------------------
-dm = ImageFolderDataModule(
-    data_dir=DATA_DIR,
-    batch_size=BATCH_SIZE,
-    num_workers=0,
-    img_size=IMG_SIZE,
-    seed=SEED
-)
+dm = ImageFolderDataModule(data_dir=DATA_DIR, batch_size=BATCH_SIZE, num_workers=0, img_size=IMG_SIZE, seed=SEED)
 dm.setup()
 train_loader = dm.train_dataloader()
 
@@ -66,7 +60,7 @@ with profile(
     on_trace_ready=tensorboard_trace_handler(LOG_DIR),
     record_shapes=True,
     with_stack=True,
-    with_flops=True  # optional, extra stats
+    with_flops=True,  # optional, extra stats
 ) as prof:
     for epoch in range(MAX_EPOCHS):
         for step, (xb, yb) in enumerate(train_loader):

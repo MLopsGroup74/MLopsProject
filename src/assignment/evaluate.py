@@ -67,9 +67,7 @@ def main() -> None:
         num_classes=dm.num_classes,
     )
 
-    device = torch.device(
-        "cuda" if torch.cuda.is_available() and args.accelerator != "cpu" else "cpu"
-    )
+    device = torch.device("cuda" if torch.cuda.is_available() and args.accelerator != "cpu" else "cpu")
     model = model.to(device)
     model.eval()
 

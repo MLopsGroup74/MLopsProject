@@ -1,4 +1,3 @@
-
 from src.assignment.model import ConvolutionalNetwork
 
 
@@ -8,6 +7,7 @@ def test_convolutional_network() -> None:
     batch_size = 4
     img_size = 224
     import torch
+
     x = torch.randn(batch_size, 3, img_size, img_size)
 
     model = ConvolutionalNetwork(num_classes=num_classes)

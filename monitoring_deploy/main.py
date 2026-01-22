@@ -2,11 +2,12 @@ import torch
 import torch.nn.functional as F
 from google.cloud import storage
 import functions_framework
-import os
 
 # Important: Copy your ConvolutionalNetwork class definition here
 # so the function knows the 'body' of your model.
 import torch.nn as nn
+
+
 class ConvolutionalNetwork(torch.nn.Module):
     def __init__(self, num_classes=150):
         super().__init__()
@@ -28,6 +29,7 @@ class ConvolutionalNetwork(torch.nn.Module):
         x = F.relu(self.fc3(x))
         return self.fc4(x)
 
+
 # Global variables to load the model once
 BUCKET_NAME = "mlopsproject-data"
 MODEL_FILE = "models/model-epoch=20-val_acc=0.38.ckpt"
@@ -45,14 +47,15 @@ def load_model():
         model = ConvolutionalNetwork(num_classes=150)
         # Load weights - map to CPU since Functions don't have GPUs
         checkpoint = torch.load("/tmp/model.ckpt", map_location="cpu")
-        model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint["state_dict"])
         model.eval()
+
 
 @functions_framework.http
 def predict_pokemon(request):
     load_model()
     request_json = request.get_json()
-    if request.method == 'GET':
+    if request.method == "GET":
         return {"status": "healthy"}, 200
     if request_json and "image_data" in request_json:
         # Expecting a list of floats representing the image pixels
