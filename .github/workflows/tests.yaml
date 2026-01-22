@@ -71,10 +71,9 @@ jobs:
         - name: Run Load Test (Headless)
           run: |
             uv run locust -f tests/performancetests/locustfile.py \
-            --headless \
-            --users 5 \
-            --spawn-rate 1 \
-            --run-time 30s \
-            --host https://pokemon-pred-function-952726112544.europe-west1.run.app \
-            --exit-code-on-error 1
-            --host ${{ env.FUNCTION_URL }}
+              --headless \
+              --users 5 \
+              --spawn-rate 1 \
+              --run-time 30s \
+              --exit-code-on-error 1 \
+              --host https://pokemon-pred-function-952726112544.europe-west1.run.app
