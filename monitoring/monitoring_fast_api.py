@@ -11,7 +11,9 @@ from evidently.test_suite import TestSuite
 from evidently.tests import (TestNumberOfMissingValues, TestTargetFeaturesCorrelations, 
                              TestShareOfDriftedColumns)
 
-
+"""Run monitoring FastAPI using:
+uv run uvicorn monitoring.monitoring_fast_api:app --host 0.0.0.0 --port 8001
+"""
 BUCKET_NAME = "mlopsproject-data"
 app = FastAPI()
 
