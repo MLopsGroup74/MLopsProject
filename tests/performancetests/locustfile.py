@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from locust import HttpUser, task, between
-# Locust file
 
 # --- IMAGE PREPARATION HELPER ---
 def prepare_image_payload(image_path):
