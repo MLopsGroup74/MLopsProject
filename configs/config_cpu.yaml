@@ -6,7 +6,7 @@ workerPoolSpecs:
     imageUri: europe-west1-docker.pkg.dev/dtumlops-484109/projectregistry/mlops-image:latest
     env:
       - name: WANDB_API_KEY
-        value: "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"
+        value: "INSERT API KEY HERE"
       - name: WANDB_ENTITY
         value: "s224381-dtu"
     args:
