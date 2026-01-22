@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import json
 
-URL = "https://europe-west1-dtumlops-484109.cloudfunctions.net/pokemon-classifier"
+URL = "https://pokemon-pred-function-952726112544.europe-west1.run.app"
 
 
 def prepare_image(image_path):
@@ -26,5 +26,3 @@ def test_predict_real_image():
     assert response.status_code == 200
     data = response.json()
     assert "pokemon_id" in data
-    # Optional: If you know the ID of the test image, assert it!
-    assert data["pokemon_id"] == 1

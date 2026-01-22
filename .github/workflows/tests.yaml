@@ -75,5 +75,5 @@ jobs:
             --users 5 \
             --spawn-rate 1 \
             --run-time 30s \
-            --host https://pokemon-classifier-952726112544.europe-west1.run.app \
+            --host https://pokemon-pred-function-952726112544.europe-west1.run.app \
             --exit-code-on-error
