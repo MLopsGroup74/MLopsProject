@@ -43,4 +43,3 @@ def test_train_minimal(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(sys, "argv", args)
 
     train.main()
-

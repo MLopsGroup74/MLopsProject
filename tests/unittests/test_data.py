@@ -5,7 +5,7 @@ import torch
 from PIL import Image
 
 from src.assignment.data import ImageFolderDataModule
-from tests import _PATH_DATA 
+from tests import _PATH_DATA
 
 
 def _make_tiny_imagefolder(root: Path, n_per_class: int = 10):
@@ -20,7 +20,7 @@ def _make_tiny_imagefolder(root: Path, n_per_class: int = 10):
 
 def test_imagefolder_datamodule(tmp_path):
     # Put test data in a dedicated subdir so we don't clash with real data
-    data_dir = tmp_path / "test_data_sandbox"  
+    data_dir = tmp_path / "test_data_sandbox"
     data_dir.mkdir()
 
     _make_tiny_imagefolder(data_dir, n_per_class=10)
@@ -48,5 +48,3 @@ def test_imagefolder_datamodule(tmp_path):
     assert images.shape[2] == 32 and images.shape[3] == 32
     assert labels.min().item() >= 0
     assert labels.max().item() < dm.num_classes
-
-
