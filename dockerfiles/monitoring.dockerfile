@@ -1,11 +1,10 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS base
-
-RUN apk add --no-cache bash
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS base
 
 WORKDIR /app
 
 COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
+COPY README.md README.md
 
 
 RUN uv sync --frozen --no-install-project
