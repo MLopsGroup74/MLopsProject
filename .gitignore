@@ -219,7 +219,5 @@ models/*.pth
 models/*.ckpt
 lightning_logs/
 
-#Monitoring
-monitoring/prediction_database.csv
-monitoring/reference_database.csv
-monitoring/*.html
+#monitoring
+monitoring_report.html
