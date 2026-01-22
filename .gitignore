@@ -233,3 +233,4 @@ config_cpu.yaml
 # Models
 models/*.pth
 models/*.ckpt
+data.json
