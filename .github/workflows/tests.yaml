@@ -38,3 +38,27 @@ jobs:
           uv run coverage run -m pytest tests/
           uv run coverage report -m --ignore-errors
 
+  integration-test:
+      needs: unit-test
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
+
+        - name: Install dependencies
+          run: uv sync --dev --locked
+
+        - name: Run API Integration Tests
+          run: uv run pytest tests/integrationtests
+
+        - name: Run Load Test (Headless)
+          run: |
+            uv run locust -f tests/performancetests/locustfile.py \
+            --headless \
+            --users 5 \
+            --spawn-rate 1 \
+            --run-time 30s \
+            --host https://pokemon-classifier-952726112544.europe-west1.run.app \
+            --exit-code-on-error
