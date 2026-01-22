@@ -21,9 +21,24 @@ from model import ConvolutionalNetwork
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command line arguments for evaluation.
+
+    Returns:
+        Parsed command line arguments.
+    """
     p = argparse.ArgumentParser(description="Evaluate a trained CNN model.")
-    p.add_argument("--data_dir", type=str, required=True, help="Root folder for ImageFolder dataset.")
-    p.add_argument("--checkpoint", type=str, required=True, help="Path to trained model checkpoint (.ckpt).")
+    p.add_argument(
+        "--data_dir",
+        type=str,
+        required=True,
+        help="Root folder for ImageFolder dataset.",
+    )
+    p.add_argument(
+        "--checkpoint",
+        type=str,
+        required=True,
+        help="Path to trained model checkpoint (.ckpt).",
+    )
     p.add_argument("--batch_size", type=int, default=32)
     p.add_argument("--num_workers", type=int, default=0)
     p.add_argument("--img_size", type=int, default=224)
@@ -33,10 +48,10 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
+    """Main evaluation pipeline entry point."""
     args = parse_args()
     pl.seed_everything(42, workers=True)
 
-    # --- Load dataset ---
     dm = ImageFolderDataModule(
         data_dir=Path(args.data_dir),
         batch_size=args.batch_size,
@@ -46,18 +61,18 @@ def main() -> None:
     )
     dm.setup()
 
-    # --- Load trained model ---
     print(f"\n🔍 Loading model from checkpoint: {args.checkpoint}")
     model = ConvolutionalNetwork.load_from_checkpoint(
         args.checkpoint,
         num_classes=dm.num_classes,
     )
 
-    device = torch.device("cuda" if torch.cuda.is_available() and args.accelerator != "cpu" else "cpu")
+    device = torch.device(
+        "cuda" if torch.cuda.is_available() and args.accelerator != "cpu" else "cpu"
+    )
     model = model.to(device)
     model.eval()
 
-    # --- Evaluate on test set ---
     print("\nEvaluating on test set...")
     y_true, y_pred = [], []
     with torch.no_grad():
@@ -68,7 +83,6 @@ def main() -> None:
             y_pred.extend(preds)
             y_true.extend(yb.cpu().tolist())
 
-    # --- Classification report ---
     print(" Classification report (test):")
     labels = np.arange(len(dm.class_names))
     print(

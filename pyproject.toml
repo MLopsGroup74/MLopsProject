@@ -21,17 +21,23 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
+    "evidently==0.4.32",
     "fastapi==0.115.6",
     "httpx>=0.28.1",
     "locust>=2.43.1",
+    "gdown>=5.2.1",
+    "google-cloud-storage>=3.8.0",
     "loguru>=0.7.3",
     "numpy>=2.4.0",
+    "pandas>=2.3.3",
     "python-multipart>=0.0.21",
     "python-multipart>=0.0.21",
     "pytorch-lightning>=2.6.0",
+    "requests>=2.32.5",
     "scikit-learn>=1.8.0",
-    "torch==2.6.0",
-    "torchvision>=0.21.0",
+    "torch==2.5.1",
+    "torchvision==0.20.1",
+    "torchaudio==2.5.1",
     "typer==0.15.1",
     "uvicorn==0.34.0",
     "wandb>=0.24.0",
@@ -72,7 +78,19 @@ omit = ["tests/*"]
 markers = [
   "fast: quick running tests"
 ]
+testpaths = ["tests"]
+norecursedirs = [
+  "google-cloud-sdk",
+  ".venv",
+  ".git",
+  "__pycache__",
+  "wandb",
+  "lightning_logs",
+  "models",
+  "dist",
+  "build",
+]
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 select = ["E", "F"]

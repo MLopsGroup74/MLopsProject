@@ -234,3 +234,7 @@ config_cpu.yaml
 models/*.pth
 models/*.ckpt
 data.json
+lightning_logs/
+
+#monitoring
+monitoring_report.html
