@@ -2,8 +2,8 @@ import io
 import os
 import torch
 import torch.nn.functional as F
-import numpy as np
 import pandas as pd
+import json
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from PIL import Image
 from torchvision import transforms as T
@@ -11,6 +11,8 @@ from contextlib import asynccontextmanager
 from src.assignment.model import ConvolutionalNetwork
 from src.assignment.data import ImageFolderDataModule
 from transformers import CLIPModel, CLIPProcessor
+from google.cloud import storage
+from datetime import datetime
 #from pyexpat import model
 
 """
@@ -23,7 +25,8 @@ afterwards go to http://localhost:8000/docs for interactive api
 CKPT_PATH = "models/model-epoch=17-val_acc=0.38.ckpt" 
 DATA_DIR = "PokemonData/"
 
-# Define the exact same transforms used during training/validation
+BUCKET_NAME="mlopsproject-data" 
+
 inference_transform = T.Compose([
     T.Resize((224, 224)),
     T.ToTensor(),
@@ -61,17 +64,31 @@ def extract_image_features(img: Image.Image, clip_model, clip_processor):
         img_emb = clip_model.get_image_features(**inputs)
     return img_emb.squeeze().tolist()
 
-def add_to_database(features_list: list, prediction: str):
-    os.makedirs("monitoring", exist_ok=True)
-    file_path= "monitoring/prediction_database.csv"
-    file_exists= os.path.isfile(file_path)
+def save_prediction_to_gcp(features: list, prediction: str):
+    "Uploads prediction features as json file to a bucket"
 
-    row = {f"f_{i}": val for i, val in enumerate(features_list)}
-    row["prediction"] = prediction
-    
-    df = pd.DataFrame([row])
-    df.to_csv(file_path, mode='a', header=not file_exists, index=False)
+    try:
+        client = storage.Client()
+        bucket= client.bucket(BUCKET_NAME)
 
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+        blob_name = f"predictions/prediction_{timestamp}.json"
+
+        data = {
+            "features": features,
+            "prediction": prediction,
+            "timestamp": timestamp
+        }
+
+        #Make JSON file and upload
+        blob = bucket.blob(blob_name)
+        blob.upload_from_string(
+            data=json.dumps(data),
+            content_type="application/json"
+        )
+        print(f"DEBUG: Logged prediction to GCP: {blob_name}")
+    except Exception as e:
+        print(f"CLOUD ERROR:{e}")
 
 app = FastAPI(title="Pokémon Inference API", lifespan=lifespan)
 
@@ -107,7 +124,7 @@ async def predict(
     pred_label = app.state.class_names[pred_idx.item()]
 
     #Add the task to run AFTER the response is sent
-    background_tasks.add_task(add_to_database, clip_features, pred_label)
+    background_tasks.add_task(save_prediction_to_gcp, clip_features, pred_label)
         
     return {
         "prediction": app.state.class_names[pred_idx.item()],

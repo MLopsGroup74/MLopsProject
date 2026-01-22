@@ -22,6 +22,7 @@ dependencies = [
     "evidently==0.4.32",
     "fastapi==0.115.6",
     "gdown>=5.2.1",
+    "google-cloud-storage>=3.8.0",
     "loguru>=0.7.3",
     "numpy>=2.4.0",
     "pandas>=2.3.3",
